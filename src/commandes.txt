@@ -1,0 +1,9 @@
+# une type : est une structure  qui vas nous permetre d'associer de cette structure à une variable
+
+# Une énumération pour faire un list des choix possibles 
+
+# le Hook useState permet de changer l'ététe d'une variable dans un composant
+
+# pour que l'input change la valeur, il faut faire faire "onChange" avec une function annonym (e) => 
+
+# Le hook useEffect permet de mettre à jour automatiquement quand on vas ajouter un élément 

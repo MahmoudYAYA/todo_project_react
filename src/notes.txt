@@ -1,0 +1,8 @@
+pour crée un projet En react, il commencer par installer levite pour crée le projet 
+# La commende pour installer vite via la commande : ====  npm create vite@latest ====
+# En suite installer les composantes via la commande :  ====npm install ====
+# En suite faire la commande suivante pour démarer l'application: ==== npm run dev ==== 
+
+# tailwindcss est une bibliothèque permet de remplacer le css clasique la commande d'installation : ==== npm install tailwindcss @tailwindcss/vite ====
+# Puis installer daisyUI via la commande suivate : ==== npm i -D daisyui@latest ====
+# En suite installer lucide react pour pouvoir utiliser des icones ==== npm install lucide-react ====

@@ -11,12 +11,19 @@ type Todo = {
 
 type Props = {
   todo: Todo;
+
   onDelete: () => void;
   isSelected: boolean;
   onToggleSelect: (id: number) => void;
 };
 
-const TodoItem = ({ todo, onDelete, isSelected, onToggleSelect }: Props) => {
+const TodoItem = ({
+  todo,
+  onDelete,
+
+  isSelected,
+  onToggleSelect,
+}: Props) => {
   return (
     <li className="p-3">
       <div className="flex justify-between align-items-center">

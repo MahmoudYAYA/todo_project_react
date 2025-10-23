@@ -7,3 +7,24 @@
 # pour que l'input change la valeur, il faut faire faire "onChange" avec une function annonym (e) => 
 
 # Le hook useEffect permet de mettre à jour automatiquement quand on vas ajouter un élément 
+
+# Les étapes suivies pour déployer l'application sur Vercel :
+# 1. Créer un compte sur Vercel 
+# 2. Installer Vercel CLI via la commande : ==== npm i -g vercel ====
+# 3. Se connecter à Vercel via la commande : ==== vercel login ====
+# 4. Initialiser le projet pour le déploiement via la commande : ==== vercel ====
+# 5. Suivre les instructions pour configurer le projet
+# 6. Déployer le projet via la commande : ==== vercel --prod ====
+# 7. Copier le lien fourni pour accéder à l'application en ligne
+# 8. Mettre à jour le projet en local et redéployer avec la commande : ==== vercel --prod ====
+
+Ensuite modifier le l'icones dans le fichier index.html
+#  pour cela ajouter les lignes suivantes dans le head du fichier index.html
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <title>Gestionnaire de tâches</title>
+
+    

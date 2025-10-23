@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import TodoItem from "./TodoItem";
-import { Construction } from "lucide-react";
+import { Construction, Trash, Edit2, Check, X } from "lucide-react";
 
 // typ priority peux avoir pluesieurs valeurs
 type Priority = "Urgent" | "Moyenne" | "Basse";
@@ -12,26 +11,181 @@ type Todo = {
   deadline?: string;
 };
 
-function App() {
-  // string pour priciser la valeur que input vas recevoir
-  const [input, setInput] = useState<string>(""); // ici on pricise la valeur par défault de une input
-  const [priority, setPriority] = useState<Priority>("Moyenne"); // important de préciser le type priority
+// ============================================
+// NOUVEAU COMPOSANT TodoItem avec édition
+// ============================================
+type TodoItemProps = {
+  todo: Todo;
+  onDelete: () => void;
+  isSelected: boolean;
+  onToggleSelect: (id: number) => void;
+  onEdit: (
+    id: number,
+    newText: string,
+    newPriority: Priority,
+    newDeadline?: string
+  ) => void; // NOUVELLE PROP
+};
 
-  // un const pour sauvegarder les données dans localstorge
+const TodoItem = ({
+  todo,
+  onDelete,
+  isSelected,
+  onToggleSelect,
+  onEdit, // NOUVELLE PROP
+}: TodoItemProps) => {
+  // États pour gérer le mode édition
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(todo.text);
+  const [editPriority, setEditPriority] = useState(todo.priority);
+  const [editDeadline, setEditDeadline] = useState(todo.deadline || "");
+
+  // Fonction pour sauvegarder les modifications
+  const handleSave = () => {
+    if (editText.trim() === "") return;
+    onEdit(todo.id, editText.trim(), editPriority, editDeadline || undefined);
+    setIsEditing(false);
+  };
+
+  // Fonction pour annuler l'édition
+  const handleCancel = () => {
+    setEditText(todo.text);
+    setEditPriority(todo.priority);
+    setEditDeadline(todo.deadline || "");
+    setIsEditing(false);
+  };
+
+  return (
+    <li className="p-3">
+      <div className="flex justify-between align-items-center gap-2">
+        <div className="flex items-center gap-2 flex-1">
+          <input
+            type="checkbox"
+            className="checkbox checkbox-primary checkbox-sm"
+            checked={isSelected}
+            onChange={() => onToggleSelect(todo.id)}
+            disabled={isEditing} // Désactiver pendant l'édition
+          />
+
+          {/* MODE NORMAL : Affichage */}
+          {!isEditing ? (
+            <>
+              <span className="text-md flex items-center gap-2 font-bold">
+                <span>{todo.text}</span>
+                <span
+                  className={`badge badge-sm badge-soft
+                     ${
+                       todo.priority === "Urgent"
+                         ? "badge-error"
+                         : todo.priority === "Moyenne"
+                         ? "badge-warning"
+                         : "badge-success"
+                     }`}>
+                  {todo.priority}
+                </span>
+              </span>
+              {todo.deadline && (
+                <span
+                  className={`badge font-bold px-3 py-4 rounded-md text-white ${
+                    new Date(todo.deadline) < new Date()
+                      ? "bg-red-400"
+                      : "bg-green-400"
+                  }`}
+                  title={`Tâche à finir avant le : ${todo.deadline}`}>
+                  Avant la date &nbsp;:{" "}
+                  {new Date(todo.deadline).toLocaleDateString("fr-FR")}
+                </span>
+              )}
+            </>
+          ) : (
+            /* MODE ÉDITION : Formulaire inline */
+            <div className="flex gap-2 flex-1 items-center">
+              <input
+                type="text"
+                className="input input-sm flex-1"
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                autoFocus
+              />
+              <select
+                className="select select-sm w-32"
+                value={editPriority}
+                onChange={(e) => setEditPriority(e.target.value as Priority)}>
+                <option value="Urgent">Urgent</option>
+                <option value="Moyenne">Moyenne</option>
+                <option value="Basse">Basse</option>
+              </select>
+              <input
+                type="date"
+                className="input input-sm w-36"
+                value={editDeadline}
+                onChange={(e) => setEditDeadline(e.target.value)}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* BOUTONS D'ACTION */}
+        <div className="flex gap-2">
+          {!isEditing ? (
+            <>
+              {/* Bouton Éditer */}
+              <button
+                className="btn btn-primary btn-soft btn-sm"
+                onClick={() => setIsEditing(true)}
+                title="Modifier">
+                <Edit2 className="w-4 h-4" />
+              </button>
+              {/* Bouton Supprimer */}
+              <button
+                className="btn btn-error btn-soft btn-sm"
+                onClick={onDelete}
+                title="Supprimer">
+                <Trash className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <>
+              {/* Bouton Valider */}
+              <button
+                className="btn btn-success btn-soft btn-sm"
+                onClick={handleSave}
+                title="Sauvegarder">
+                <Check className="w-4 h-4" />
+              </button>
+              {/* Bouton Annuler */}
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={handleCancel}
+                title="Annuler">
+                <X className="w-4 h-4" />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </li>
+  );
+};
+
+// ============================================
+// COMPOSANT APP (code de base + fonction editTodo)
+// ============================================
+function App() {
+  const [input, setInput] = useState<string>("");
+  const [priority, setPriority] = useState<Priority>("Moyenne");
+
   const saveTodos = localStorage.getItem("todos");
-  // puis le convertire  dans un format json
   const initialTodos = saveTodos ? JSON.parse(saveTodos) : [];
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [filter, setFilter] = useState<Priority | "Tous">("Tous");
 
-  // on utilise useEffect pour metter à jour aund on vas mettre un élément dans un tableau
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todos));
   }, [todos]);
 
   function addTodo() {
     if (input.trim() == "") {
-      // si l'input n'est pas vide
       return;
     }
 
@@ -41,7 +195,6 @@ function App() {
       priority: priority,
       deadline: deadline || undefined,
     };
-    // ici on ajoute la nouvelle todo dans la la table de  Todo
     const newTodos = [newTodo, ...todos];
     setTodos(newTodos);
     setInput("");
@@ -58,7 +211,6 @@ function App() {
     filteredTodos = todos.filter((todos) => todos.priority === filter);
   }
 
-  // pour conter le nombre des taches urgent
   const urgentConut = todos.filter((t) => t.priority === "Urgent").length;
   const mediumConut = todos.filter((t) => t.priority === "Moyenne").length;
   const lowConut = todos.filter((t) => t.priority === "Basse").length;
@@ -69,7 +221,7 @@ function App() {
       "Voulez-vous vraiment supprimer cette tâche ?"
     );
 
-    if (!isConfirmed) return; // si l’utilisateur annule l'action , on ne fait rien
+    if (!isConfirmed) return;
 
     const newTodos = todos.filter((todo) => todo.id !== id);
     setTodos(newTodos);
@@ -99,6 +251,35 @@ function App() {
     setTodos(newTodos);
     SetSelectedTodos(new Set());
   }
+
+  // ============================================
+  // NOUVELLE FONCTION : Éditer une tâche
+  // ============================================
+  function editTodo(
+    id: number,
+    newText: string,
+    newPriority: Priority,
+    newDeadline?: string
+  ) {
+    // On parcourt le tableau de todos
+    const updatedTodos = todos.map((todo) => {
+      // Si on trouve la tâche à modifier
+      if (todo.id === id) {
+        // On retourne une copie de la tâche avec les nouvelles valeurs
+        return {
+          ...todo,
+          text: newText,
+          priority: newPriority,
+          deadline: newDeadline,
+        };
+      }
+      // Sinon on retourne la tâche telle quelle
+      return todo;
+    });
+    // On met à jour l'état avec le nouveau tableau
+    setTodos(updatedTodos);
+  }
+
   return (
     <div className="flex justify-center">
       <div className="w-3/4 flex flex-col gap-4 my-15 bg-base-300 p-5 rounded-2xl">
@@ -108,16 +289,11 @@ function App() {
             className="input w-full"
             placeholder="Ajouter une tache"
             value={input}
-            onChange={
-              (e) =>
-                setInput(
-                  e.target.value
-                ) /* on passe la nouvelle valeur qu'on rentrée dans le champs à input grace à setInput */
-            }
+            onChange={(e) => setInput(e.target.value)}
           />
           <input
             type="date"
-            className="input w-fit" // w-fit pour ne pas prendre toute la largeur
+            className="input w-fit"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
           />
@@ -125,12 +301,7 @@ function App() {
           <select
             className="select w-full"
             value={priority}
-            onChange={
-              (e) =>
-                setPriority(
-                  e.target.value as Priority
-                ) /* on précise le type Priority avec as */
-            }>
+            onChange={(e) => setPriority(e.target.value as Priority)}>
             <option value="Urgent">Urgent</option>
             <option value="Moyenne">Moyenne</option>
             <option value="Basse">Basse</option>
@@ -150,7 +321,6 @@ function App() {
                 Tous {totalCounts}
               </button>
 
-              {/*Ce boutton pour filter les taches */}
               <button
                 className={`btn btn-soft ${
                   filter === "Urgent" ? "btn btn-primary" : ""
@@ -178,10 +348,7 @@ function App() {
             <button
               className="btn btn-primary"
               onClick={finishSelected}
-              disabled={
-                selectedTodos.size ==
-                0 /* quand on selectionne rien, il le boutton sera griser */
-              }>
+              disabled={selectedTodos.size == 0}>
               Finir la sélection {selectedTodos.size}
             </button>
           </div>
@@ -195,6 +362,7 @@ function App() {
                     isSelected={selectedTodos.has(todo.id)}
                     onDelete={() => deleteTodo(todo.id)}
                     onToggleSelect={toggleSelectTodo}
+                    onEdit={editTodo} // NOUVELLE PROP passée au composant
                   />
                 </li>
               ))}
@@ -202,7 +370,6 @@ function App() {
           ) : (
             <div className="flex justify-center items-center flex-col p-5">
               <div>
-                {/* Sembole qui indique si y a aucune tache exist pour un filtre*/}
                 <Construction
                   strokeWidth={1}
                   className="w-20 h-20 text-primary"

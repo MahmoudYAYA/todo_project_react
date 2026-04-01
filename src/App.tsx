@@ -48,12 +48,12 @@ function App() {
     id: number,
     text: string,
     priority: Priority,
-    deadline?: string
+    deadline?: string,
   ) => {
     setTodos(
       todos.map((todo) =>
-        todo.id === id ? { ...todo, text, priority, deadline } : todo
-      )
+        todo.id === id ? { ...todo, text, priority, deadline } : todo,
+      ),
     );
   };
 
@@ -83,7 +83,7 @@ function App() {
   };
   const completionPercentage = calculateCompletion(
     counts.total,
-    selectedTodos.size
+    selectedTodos.size,
   );
   const closeDeadlinesCount = countCloseDeadlines(todos);
 
@@ -135,7 +135,7 @@ function App() {
         </div>
 
         {/* Liste */}
-        {filteredTodos.length > 0 ? (
+        {filteredTodos.length > 0 ?
           <ul className="divide-y divide-primary/20">
             {filteredTodos.map((todo) => (
               <TodoItem
@@ -148,9 +148,7 @@ function App() {
               />
             ))}
           </ul>
-        ) : (
-          <EmptyState />
-        )}
+        : <EmptyState />}
       </div>
     </div>
   );

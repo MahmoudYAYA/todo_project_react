@@ -4,27 +4,24 @@ type ProgressBarProps = {
   total: number;
 };
 
-export const ProgressBar = ({
-  percentage,
-  selected,
-  total,
-}: ProgressBarProps) => {
+export const ProgressBar = ({ percentage, selected, total }: ProgressBarProps) => {
   return (
-    <div className="mb-4">
-      <div className="flex justify-between text-sm mb-2">
-        <span className="font-semibold">Progression</span>
-        <span className="font-bold">{percentage}%</span>
-      </div>
-      <div className="w-full bg-gray-300 rounded-full h-4 overflow-hidden">
+    <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: 11 }}>
+      <span style={{ whiteSpace: "nowrap", fontWeight: "bold", minWidth: 80 }}>
+        Progression :
+      </span>
+      <div className="win-progress-track" style={{ flex: 1 }}>
         <div
-          className="bg-primary h-full transition-all duration-500 flex items-center justify-center text-xs text-white font-bold"
-          style={{ width: `${percentage}%` }}>
-          {percentage > 10 && `${percentage}%`}
-        </div>
+          className="win-progress-fill"
+          style={{ width: `${percentage}%` }}
+        />
       </div>
-      <p className="text-xs text-center mt-1 opacity-70">
-        {selected} / {total} tâches sélectionnées
-      </p>
+      <span style={{ whiteSpace: "nowrap", minWidth: 40, textAlign: "right" }}>
+        {percentage}%
+      </span>
+      <span style={{ whiteSpace: "nowrap", color: "#444" }}>
+        ({selected}/{total})
+      </span>
     </div>
   );
 };

@@ -1,9 +1,7 @@
 import { useState } from "react";
 import type { Priority, Todo } from "./types/todo.types";
 import { useLocalStorage } from "./hooks/useLocalStorage";
-import { useTheme } from "./hooks/useTheme";
 import { countCloseDeadlines, calculateCompletion } from "./utils/todoUtils";
-import { ThemeToggle } from "./components/ThemeToggle";
 import { ProgressBar } from "./components/ProgressBar";
 import { DeadlineAlert } from "./components/DeadlineAlert";
 import { TodoForm } from "./components/TodoForm";
@@ -12,18 +10,14 @@ import { TodoItem } from "./components/TodoItem";
 import { EmptyState } from "./components/EmptyState";
 
 function App() {
-  // Custom hooks
   const [todos, setTodos] = useLocalStorage<Todo[]>("todos", []);
-  const { theme, toggleTheme } = useTheme();
 
-  // États locaux
   const [input, setInput] = useState("");
   const [priority, setPriority] = useState<Priority>("Moyenne");
   const [deadline, setDeadline] = useState("");
   const [filter, setFilter] = useState<Priority | "Tous">("Tous");
   const [selectedTodos, setSelectedTodos] = useState<Set<number>>(new Set());
 
-  // Fonctions
   const addTodo = () => {
     if (input.trim() === "") return;
     const newTodo: Todo = {
@@ -72,7 +66,6 @@ function App() {
     setSelectedTodos(new Set());
   };
 
-  // Calculs
   const filteredTodos =
     filter === "Tous" ? todos : todos.filter((t) => t.priority === filter);
   const counts = {
@@ -88,67 +81,144 @@ function App() {
   const closeDeadlinesCount = countCloseDeadlines(todos);
 
   return (
-    <div className="flex justify-center min-h-screen py-10">
-      <div className="w-11/12 max-w-4xl flex flex-col gap-4 bg-base-300 p-6 rounded-2xl shadow-xl">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h1 className="text-3xl font-bold">Ma Todo List</h1>
-            <DeadlineAlert count={closeDeadlinesCount} />
-          </div>
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
-        </div>
-
-        {/* Progression */}
-        {counts.total > 0 && (
-          <ProgressBar
-            percentage={completionPercentage}
-            selected={selectedTodos.size}
-            total={counts.total}
+    /* Desktop background */
+    <div
+      style={{ minHeight: "100vh", background: "#008080", padding: "24px" }}
+      className="flex justify-center items-start"
+    >
+      {/* Window chrome */}
+      <div
+        className="win-window"
+        style={{ width: "100%", maxWidth: "780px" }}
+      >
+        {/* Title bar */}
+        <div className="win-titlebar">
+          {/* App icon placeholder */}
+          <img
+            src="/favicon.ico"
+            alt=""
+            style={{ width: 16, height: 16, imageRendering: "pixelated" }}
           />
-        )}
-
-        {/* Formulaire */}
-        <TodoForm
-          input={input}
-          priority={priority}
-          deadline={deadline}
-          onInputChange={setInput}
-          onPriorityChange={setPriority}
-          onDeadlineChange={setDeadline}
-          onSubmit={addTodo}
-        />
-
-        {/* Filtres et actions */}
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <FilterButtons
-            filter={filter}
-            onFilterChange={setFilter}
-            counts={counts}
-          />
+          <span className="win-titlebar-text">
+            Gestionnaire de tâches – Ma Todo List
+          </span>
+          {/* Window control buttons */}
+          <button className="win-title-btn" title="Réduire" aria-label="Réduire">_</button>
+          <button className="win-title-btn" title="Agrandir" aria-label="Agrandir">□</button>
           <button
-            className="btn btn-primary btn-sm"
-            onClick={finishSelected}
-            disabled={selectedTodos.size === 0}>
-            Terminer ({selectedTodos.size})
+            className="win-title-btn"
+            title="Fermer"
+            aria-label="Fermer"
+            style={{ marginLeft: 2, fontWeight: "bold" }}
+          >
+            ✕
           </button>
         </div>
 
-        {/* Liste */}
-        {filteredTodos.length > 0 ?
-          <ul className="divide-y divide-primary/20">
-            {filteredTodos.map((todo) => (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                isSelected={selectedTodos.has(todo.id)}
-                onDelete={() => deleteTodo(todo.id)}
-                onToggleSelect={toggleSelectTodo}
-                onEdit={editTodo}
-              />
-            ))}
-          </ul>
-        : <EmptyState />}
+        {/* Menu bar */}
+        <div className="win-toolbar">
+          <span style={{ fontSize: 11, padding: "2px 8px", cursor: "default" }}>Fichier</span>
+          <span style={{ fontSize: 11, padding: "2px 8px", cursor: "default" }}>Édition</span>
+          <span style={{ fontSize: 11, padding: "2px 8px", cursor: "default" }}>Affichage</span>
+          <span style={{ fontSize: 11, padding: "2px 8px", cursor: "default" }}>Aide</span>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: "8px", display: "flex", flexDirection: "column", gap: "6px", background: "#d4d0c8" }}>
+
+          {/* Deadline Alert */}
+          <DeadlineAlert count={closeDeadlinesCount} />
+
+          {/* Progress section */}
+          {counts.total > 0 && (
+            <ProgressBar
+              percentage={completionPercentage}
+              selected={selectedTodos.size}
+              total={counts.total}
+            />
+          )}
+
+          {/* Add task group box */}
+          <fieldset className="win-groupbox" style={{ margin: 0 }}>
+            <legend style={{ fontSize: 11, padding: "0 4px", fontWeight: "bold" }}>
+              Nouvelle tâche
+            </legend>
+            <TodoForm
+              input={input}
+              priority={priority}
+              deadline={deadline}
+              onInputChange={setInput}
+              onPriorityChange={setPriority}
+              onDeadlineChange={setDeadline}
+              onSubmit={addTodo}
+            />
+          </fieldset>
+
+          {/* Filter + action toolbar */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "4px",
+              borderBottom: "1px solid #808080",
+              paddingBottom: "4px",
+            }}
+          >
+            <FilterButtons
+              filter={filter}
+              onFilterChange={setFilter}
+              counts={counts}
+            />
+            <button
+              className="win-btn"
+              onClick={finishSelected}
+              disabled={selectedTodos.size === 0}
+            >
+              ✔ Terminer ({selectedTodos.size})
+            </button>
+          </div>
+
+          {/* Todo list */}
+          <div
+            className="win-inset"
+            style={{
+              background: "#ffffff",
+              minHeight: "120px",
+              maxHeight: "480px",
+              overflowY: "auto",
+              padding: 0,
+            }}
+          >
+            {filteredTodos.length > 0 ? (
+              <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
+                {filteredTodos.map((todo) => (
+                  <TodoItem
+                    key={todo.id}
+                    todo={todo}
+                    isSelected={selectedTodos.has(todo.id)}
+                    onDelete={() => deleteTodo(todo.id)}
+                    onToggleSelect={toggleSelectTodo}
+                    onEdit={editTodo}
+                  />
+                ))}
+              </ul>
+            ) : (
+              <EmptyState />
+            )}
+          </div>
+        </div>
+
+        {/* Status bar */}
+        <div className="win-statusbar">
+          <div className="win-statusbar-panel">
+            {counts.total} tâche{counts.total !== 1 ? "s" : ""} au total
+          </div>
+          <div className="win-statusbar-panel" style={{ flex: "0 0 auto" }}>
+            {selectedTodos.size} sélectionnée{selectedTodos.size !== 1 ? "s" : ""}
+          </div>
+        </div>
       </div>
     </div>
   );

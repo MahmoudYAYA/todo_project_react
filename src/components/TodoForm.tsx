@@ -20,30 +20,37 @@ export const TodoForm = ({
   onSubmit,
 }: TodoFormProps) => {
   return (
-    <div className="flex gap-4 flex-wrap">
+    <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", alignItems: "center" }}>
       <input
         type="text"
-        className="input w-full flex-1"
+        className="win-input"
         placeholder="Ajouter une tâche..."
         value={input}
         onChange={(e) => onInputChange(e.target.value)}
-        onKeyPress={(e) => e.key === "Enter" && onSubmit()}
+        onKeyDown={(e) => e.key === "Enter" && onSubmit()}
+        style={{ flex: 1, minWidth: "180px" }}
       />
+      <label style={{ fontSize: 11, marginLeft: 2, whiteSpace: "nowrap" }}>
+        Échéance :
+      </label>
       <input
         type="date"
-        className="input w-fit"
+        className="win-input"
         value={deadline}
         onChange={(e) => onDeadlineChange(e.target.value)}
+        style={{ width: "120px" }}
       />
       <select
-        className="select w-40"
+        className="win-select"
         value={priority}
-        onChange={(e) => onPriorityChange(e.target.value as Priority)}>
+        onChange={(e) => onPriorityChange(e.target.value as Priority)}
+        style={{ width: "100px" }}
+      >
         <option value="Urgent">Urgent</option>
         <option value="Moyenne">Moyenne</option>
         <option value="Basse">Basse</option>
       </select>
-      <button onClick={onSubmit} className="btn btn-primary">
+      <button onClick={onSubmit} className="win-btn" style={{ paddingLeft: 14, paddingRight: 14 }}>
         Ajouter
       </button>
     </div>

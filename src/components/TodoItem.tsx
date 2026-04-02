@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Trash, Edit2, Check, X, Bell } from "lucide-react";
 import type { Todo, Priority } from "../types/todo.types";
 import { isDeadlineClose } from "../utils/todoUtils";
 
@@ -41,113 +42,111 @@ export const TodoItem = ({
   };
 
   const isClose = isDeadlineClose(todo.deadline);
-  const isOverdue = todo.deadline && new Date(todo.deadline) < new Date();
-
-  const priorityBadgeClass =
-    todo.priority === "Urgent"
-      ? "win-badge win-badge-red"
-      : todo.priority === "Moyenne"
-      ? "win-badge win-badge-yellow"
-      : "win-badge win-badge-green";
 
   return (
-    <li
-      className={`win-list-item${isSelected ? " selected" : ""}`}
-      style={{ display: "flex", alignItems: "center", gap: "6px", padding: "4px 6px" }}
-    >
-      <input
-        type="checkbox"
-        className="win-checkbox"
-        checked={isSelected}
-        onChange={() => onToggleSelect(todo.id)}
-        disabled={isEditing}
-      />
+    <li className="p-3">
+      <div className="flex justify-between align-items-center gap-2">
+        <div className="flex items-center gap-2 flex-1">
+          <input
+            type="checkbox"
+            className="checkbox checkbox-primary checkbox-sm"
+            checked={isSelected}
+            onChange={() => onToggleSelect(todo.id)}
+            disabled={isEditing}
+          />
 
-      {!isEditing ? (
-        <>
-          {/* Text + badges */}
-          <span style={{ flex: 1, display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap", fontSize: 11 }}>
-            <span style={{ fontWeight: isSelected ? "normal" : "bold" }}>{todo.text}</span>
-            <span className={priorityBadgeClass}>{todo.priority}</span>
-            {isClose && (
-              <span className="win-badge win-badge-orange" title="Deadline proche !">
-                ⚠ Urgent
+          {!isEditing ? (
+            <>
+              <span className="text-md flex items-center gap-2 font-bold">
+                <span>{todo.text}</span>
+                <span
+                  className={`badge badge-sm badge-soft ${
+                    todo.priority === "Urgent"
+                      ? "badge-error"
+                      : todo.priority === "Moyenne"
+                      ? "badge-warning"
+                      : "badge-success"
+                  }`}>
+                  {todo.priority}
+                </span>
+                {isClose && (
+                  <span
+                    className="badge badge-sm bg-orange-500 text-white flex items-center gap-1"
+                    title="Deadline proche !">
+                    <Bell className="w-3 h-3" />
+                    Urgent
+                  </span>
+                )}
               </span>
-            )}
-            {todo.deadline && (
-              <span
-                className={`win-badge ${isOverdue ? "win-badge-red" : isClose ? "win-badge-orange" : "win-badge-green"}`}
-                title={`Tâche à finir avant le : ${todo.deadline}`}
-                style={{ fontWeight: "normal" }}
-              >
-                📅 {new Date(todo.deadline).toLocaleDateString("fr-FR")}
-              </span>
-            )}
-          </span>
+              {todo.deadline && (
+                <span
+                  className={`badge font-bold px-3 py-4 rounded-md text-white ${
+                    new Date(todo.deadline) < new Date()
+                      ? "bg-red-400"
+                      : isClose
+                      ? "bg-orange-400"
+                      : "bg-green-400"
+                  }`}
+                  title={`Tâche à finir avant le : ${todo.deadline}`}>
+                  {new Date(todo.deadline).toLocaleDateString("fr-FR")}
+                </span>
+              )}
+            </>
+          ) : (
+            <div className="flex gap-2 flex-1 items-center">
+              <input
+                type="text"
+                className="input input-sm flex-1"
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                autoFocus
+              />
+              <select
+                className="select select-sm w-32"
+                value={editPriority}
+                onChange={(e) => setEditPriority(e.target.value as Priority)}>
+                <option value="Urgent">Urgent</option>
+                <option value="Moyenne">Moyenne</option>
+                <option value="Basse">Basse</option>
+              </select>
+              <input
+                type="date"
+                className="input input-sm w-36"
+                value={editDeadline}
+                onChange={(e) => setEditDeadline(e.target.value)}
+              />
+            </div>
+          )}
+        </div>
 
-          {/* Action buttons */}
-          <div style={{ display: "flex", gap: "3px", flexShrink: 0 }}>
-            <button className="win-btn" onClick={() => setIsEditing(true)} style={{ padding: "1px 7px", minHeight: 20, fontSize: 10 }}>
-              ✎ Modifier
-            </button>
-            <button
-              className="win-btn"
-              onClick={onDelete}
-              style={{ padding: "1px 7px", minHeight: 20, fontSize: 10 }}
-            >
-              ✕ Suppr.
-            </button>
-          </div>
-        </>
-      ) : (
-        /* Edit mode */
-        <>
-          <div style={{ flex: 1, display: "flex", gap: "4px", alignItems: "center", flexWrap: "wrap" }}>
-            <input
-              type="text"
-              className="win-input"
-              value={editText}
-              onChange={(e) => setEditText(e.target.value)}
-              autoFocus
-              style={{ flex: 1, minWidth: "140px" }}
-              onKeyDown={(e) => e.key === "Enter" && handleSave()}
-            />
-            <select
-              className="win-select"
-              value={editPriority}
-              onChange={(e) => setEditPriority(e.target.value as Priority)}
-              style={{ width: "90px" }}
-            >
-              <option value="Urgent">Urgent</option>
-              <option value="Moyenne">Moyenne</option>
-              <option value="Basse">Basse</option>
-            </select>
-            <input
-              type="date"
-              className="win-input"
-              value={editDeadline}
-              onChange={(e) => setEditDeadline(e.target.value)}
-              style={{ width: "116px" }}
-            />
-          </div>
-          <div style={{ display: "flex", gap: "3px", flexShrink: 0 }}>
-            <button
-              className="win-btn"
-              onClick={handleSave}
-              style={{ padding: "1px 7px", minHeight: 20, fontSize: 10 }}
-            >
-              ✔ OK
-            </button>
-            <button
-              className="win-btn"
-              onClick={handleCancel}
-              style={{ padding: "1px 7px", minHeight: 20, fontSize: 10 }}
-            >
-              Annuler
-            </button>
-          </div>
-        </>
-      )}
+        <div className="flex gap-2">
+          {!isEditing ? (
+            <>
+              <button
+                className="btn btn-primary btn-soft btn-sm"
+                onClick={() => setIsEditing(true)}>
+                <Edit2 className="w-4 h-4" />
+              </button>
+              <button
+                className="btn btn-error btn-soft btn-sm"
+                onClick={onDelete}>
+                <Trash className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="btn btn-success btn-soft btn-sm"
+                onClick={handleSave}>
+                <Check className="w-4 h-4" />
+              </button>
+              <button className="btn btn-ghost btn-sm" onClick={handleCancel}>
+                <X className="w-4 h-4" />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
     </li>
   );
 };

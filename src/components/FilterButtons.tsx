@@ -16,24 +16,36 @@ export const FilterButtons = ({
   onFilterChange,
   counts,
 }: FilterButtonsProps) => {
-  const tabs: { label: string; value: Priority | "Tous"; count: number }[] = [
-    { label: "Tous", value: "Tous", count: counts.total },
-    { label: "Urgent", value: "Urgent", count: counts.urgent },
-    { label: "Moyenne", value: "Moyenne", count: counts.medium },
-    { label: "Basse", value: "Basse", count: counts.low },
-  ];
-
   return (
-    <div style={{ display: "flex", gap: "3px", flexWrap: "wrap" }}>
-      {tabs.map((tab) => (
-        <button
-          key={tab.value}
-          className={`win-tab${filter === tab.value ? " active" : ""}`}
-          onClick={() => onFilterChange(tab.value)}
-        >
-          {tab.label} ({tab.count})
-        </button>
-      ))}
+    <div className="flex flex-wrap gap-2">
+      <button
+        className={`btn btn-sm ${
+          filter === "Tous" ? "btn-primary" : "btn-soft"
+        }`}
+        onClick={() => onFilterChange("Tous")}>
+        Tous ({counts.total})
+      </button>
+      <button
+        className={`btn btn-sm ${
+          filter === "Urgent" ? "btn-primary" : "btn-soft"
+        }`}
+        onClick={() => onFilterChange("Urgent")}>
+        Urgent ({counts.urgent})
+      </button>
+      <button
+        className={`btn btn-sm ${
+          filter === "Moyenne" ? "btn-primary" : "btn-soft"
+        }`}
+        onClick={() => onFilterChange("Moyenne")}>
+        Moyenne ({counts.medium})
+      </button>
+      <button
+        className={`btn btn-sm ${
+          filter === "Basse" ? "btn-primary" : "btn-soft"
+        }`}
+        onClick={() => onFilterChange("Basse")}>
+        Basse ({counts.low})
+      </button>
     </div>
   );
 };
